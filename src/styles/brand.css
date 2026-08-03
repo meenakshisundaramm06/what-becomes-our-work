@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:opsz,wght@16..144,300..800&family=Noto+Sans:wdth,wght@62.5..100,300..800&display=swap');
+
+/*
+  Brand foundation
+  Source: brand guidelines (June 2026)
+  - Funnel Sans is primary. Noto Sans is the supported multilingual fallback.
+  - Dark mode follows the recommended balance: dark blue foundation, brand blue
+    emphasis, white/neutral contrast, secondary colour used sparingly.
+*/
+@layer reset, tokens, theme, app;
+
+@layer tokens {
+  :root {
+    /* Brand primitives: never use these directly in component rules. */
+    --brand-blue: #2322f0;
+    --brand-dark-blue: #020a51;
+    --brand-white: #ffffff;
+    --brand-pulse-amber: #fcb858;
+    --brand-drive-orange: #ff7f39;
+    --brand-stream-teal: #21e9be;
+    --brand-sync-cyan: #2ae3ff;
+    --brand-quantum-violet: #9f38fa;
+    --brand-system-slate: #4f5c75;
+    --brand-interface-gray: #b3c3da;
+    --brand-cloud-mist: #e5edf6;
+
+    /* Typography primitives. */
+    --font-family-brand: 'Funnel Sans', 'Noto Sans', sans-serif;
+    --font-family-translation: 'Noto Sans', sans-serif;
+    --font-family-mono: ui-monospace, 'SFMono-Regular', Consolas, monospace;
+    --font-weight-light: 300;
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+
+    /* Digital typography hierarchy: guideline values expressed for CSS. */
+    --type-caption-size: 0.75rem;
+    --type-caption-leading: 1.55;
+    --type-body-size: 1rem;
+    --type-body-leading: 1.56;
+    --type-subhead-size: clamp(1.5rem, 2vw, 2.25rem);
+    --type-subhead-leading: 1.12;
+    --type-headline-size: clamp(2.75rem, 6vw, 6.5rem);
+    --type-headline-leading: 1;
+    --type-eyebrow-size: 0.875rem;
+    --type-eyebrow-leading: 1.55;
+    --type-eyebrow-tracking: 0.05em;
+
+    /* Spacing and motion are product tokens, not brand claims. */
+    --space-1: 0.25rem;
+    --space-2: 0.5rem;
+    --space-3: 0.75rem;
+    --space-4: 1rem;
+    --space-5: 1.5rem;
+    --space-6: 2rem;
+    --space-7: 3rem;
+    --space-8: 4rem;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-emphasized: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+
+@layer theme {
+  :root,
+  [data-theme='dark'] {
+    --color-canvas: var(--brand-dark-blue);
+    --color-canvas-elevated: #070f66;
+    --color-surface: var(--brand-white);
+    --color-surface-subtle: var(--brand-cloud-mist);
+    --color-text: var(--brand-white);
+    --color-text-muted: color-mix(in srgb, var(--brand-white) 68%, transparent);
+    --color-text-on-surface: var(--brand-dark-blue);
+    --color-text-muted-on-surface: var(--brand-system-slate);
+    --color-action: var(--brand-blue);
+    --color-action-hover: #3b3af3;
+    --color-focus: var(--brand-sync-cyan);
+    --color-border: color-mix(in srgb, var(--brand-white) 34%, transparent);
+    --color-graph-edge: color-mix(in srgb, var(--brand-interface-gray) 58%, transparent);
+    --color-graph-edge-active: var(--brand-sync-cyan);
+    --color-graph-research: var(--brand-pulse-amber);
+    --color-graph-shift: var(--brand-sync-cyan);
+    --color-graph-learning: var(--brand-stream-teal);
+    --color-graph-risk: var(--brand-quantum-violet);
+    --color-graph-boundary: var(--brand-white);
+    --color-graph-human: var(--brand-drive-orange);
+  }
+}

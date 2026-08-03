@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Field Notes — a knowledge graph</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <main class="map-shell">
+      <section class="intro" id="intro">
+        <p class="eyebrow" id="introEyebrow">A source-backed knowledge map</p>
+        <h1 id="introTitle">What becomes<br /><em>our work</em> when AI<br />expands what we can do?</h1>
+        <p class="lede" id="introLede">A living map of the ideas behind one proposition: our value is not merely making more—it is being able to understand, judge, and stand behind what ships.</p>
+      </section>
+
+      <aside class="category-panel" aria-label="Filter concepts by category">
+        <p class="category-heading">Categories · click to toggle</p>
+        <div class="category-list" id="categoryList"></div>
+      </aside>
+
+      <section class="constellation" id="constellation" aria-label="Interactive knowledge graph">
+        <div class="graph-canvas" id="graphCanvas"></div>
+        <div class="node-tooltip" id="nodeTooltip" role="status" aria-live="polite" aria-hidden="true">
+          <p class="node-tooltip-type" id="tooltipType"></p>
+          <p class="node-tooltip-title" id="tooltipTitle"></p>
+          <p class="node-tooltip-claim" id="tooltipClaim"></p>
+          <p class="node-tooltip-meta" id="tooltipMeta"></p>
+        </div>
+        <p class="map-hint">Drag to explore depth · Scroll to zoom · Select a concept</p>
+      </section>
+
+      <aside class="detail" id="detail" aria-live="polite">
+        <button class="close" id="closeButton" type="button" aria-label="Close detail">×</button>
+        <p class="detail-kicker" id="detailKicker"></p>
+        <h2 id="detailTitle"></h2>
+        <p class="detail-claim" id="detailClaim"></p>
+        <div class="detail-divider"></div>
+        <p class="detail-body" id="detailBody"></p>
+        <div class="source-wrap" id="sourceWrap"></div>
+        <div class="related-wrap">
+          <p class="eyebrow">Connected ideas</p>
+          <div id="related"></div>
+        </div>
+      </aside>
+
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
