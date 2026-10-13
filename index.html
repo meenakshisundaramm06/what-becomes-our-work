@@ -12,6 +12,10 @@
         <p class="eyebrow" id="introEyebrow">A source-backed knowledge map</p>
         <h1 id="introTitle">What becomes<br /><em>our work</em> when AI<br />expands what we can do?</h1>
         <p class="lede" id="introLede">A living map of the ideas behind one proposition: our value is not merely making more—it is being able to understand, judge, and stand behind what ships.</p>
+        <button class="route-trigger" id="routeStart" type="button" aria-controls="routeNavigator" aria-expanded="false">
+          <span id="routeStartLabel">Guided route</span>
+          <small id="routeStartMeta"></small>
+        </button>
       </section>
 
       <aside class="category-panel" aria-label="Filter concepts by category">
@@ -31,7 +35,22 @@
       </section>
 
       <aside class="detail" id="detail" aria-live="polite">
-        <button class="close" id="closeButton" type="button" aria-label="Close detail">×</button>
+        <div class="detail-controls">
+          <nav class="route-navigator" id="routeNavigator" aria-label="Guided route" hidden>
+            <button class="route-icon" id="routePrevious" type="button" aria-label="Previous guided-route idea" title="Previous idea">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m9.75 3.5-4.5 4.5 4.5 4.5" /></svg>
+            </button>
+            <span class="route-progress" id="routeProgress" aria-live="polite"></span>
+            <button class="route-icon" id="routeNext" type="button" aria-label="Next guided-route idea" title="Next idea">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6.25 3.5 4.5 4.5-4.5 4.5" /></svg>
+            </button>
+          </nav>
+          <button class="close" id="closeButton" type="button" aria-label="Close detail">×</button>
+        </div>
+        <p class="route-movement" id="routeMovement" hidden>
+          <span id="routeMovementNumber"></span>
+          <strong id="routeMovementTitle"></strong>
+        </p>
         <p class="detail-kicker" id="detailKicker"></p>
         <h2 id="detailTitle"></h2>
         <p class="detail-claim" id="detailClaim"></p>
@@ -45,6 +64,6 @@
       </aside>
 
     </main>
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="/src/main.js?graph-version=14"></script>
   </body>
 </html>

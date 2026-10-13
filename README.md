@@ -24,6 +24,7 @@ The knowledge base is separate from the renderer:
 - `src/data/concepts.js` — named concepts, claims, summaries, tags, and source references.
 - `src/data/relations.js` — directed, typed relationships with a reason and supporting evidence.
 - `src/data/views.js` — curated subsets of concepts for a talk, topic, or reading path.
+- `src/data/routes.js` — ordered, reusable guided paths through a view.
 
 Every relation must have two existing concept IDs, a relation type, a human-readable reason, and at least one source ID. Every concept must cite an existing source. `scripts/validate-graph.mjs` enforces those referential-integrity rules.
 
@@ -32,6 +33,7 @@ Every relation must have two existing concept IDs, a relation type, a human-read
 1. Add the original material once in `sources.js`.
 2. Add one concept per distinct, discussable idea in `concepts.js`.
 3. Add a typed relation in `relations.js`; avoid unlabelled connections.
-4. Include the concept in a view only when it belongs in that path.
+4. Include the concept in a view only when it belongs in that map.
+5. Add an ordered route in `routes.js` when an audience needs a guided path; set the view’s `featuredRouteId` only when it should be the visible entry point.
 
 The Three.js scene in `src/main.js` derives node positions from the active view. It deliberately does not store visual coordinates in the knowledge records.

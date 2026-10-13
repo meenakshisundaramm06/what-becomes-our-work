@@ -1,22 +1,27 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { sources } from './data/sources.js';
-import { categories } from './data/categories.js';
-import { concepts } from './data/concepts.js';
-import { relations } from './data/relations.js';
-import { views } from './data/views.js';
-import { createKnowledgeGraph } from './graph-model.js';
+import { sources } from './data/sources.js?graph-version=14';
+import { categories } from './data/categories.js?graph-version=14';
+import { concepts } from './data/concepts.js?graph-version=14';
+import { relations } from './data/relations.js?graph-version=14';
+import { routes } from './data/routes.js?graph-version=14';
+import { views } from './data/views.js?graph-version=14';
+import { createKnowledgeGraph } from './graph-model.js?graph-version=14';
 
-const graph = createKnowledgeGraph({ sources, categories, concepts, relations, view: views[0] });
+const graph = createKnowledgeGraph({ sources, categories, concepts, relations, routes, view: views[0] });
 const brandToken = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const typeColors = {
   'research-signal': brandToken('--color-graph-research'),
   shift: brandToken('--color-graph-shift'),
+  'economic mechanism': brandToken('--color-graph-shift'),
+  'production mechanism': brandToken('--color-graph-shift'),
   learning: brandToken('--color-graph-learning'),
   'failure-mode': brandToken('--color-graph-risk'),
   boundary: brandToken('--color-graph-boundary'),
+  'governance-practice': brandToken('--color-graph-human'),
   'trade-off': brandToken('--color-graph-risk'),
   'human-work': brandToken('--color-graph-human'),
+  'market condition': brandToken('--color-graph-human'),
   'highest-agency': brandToken('--color-graph-human')
 };
 const graphEdgeColor = brandToken('--color-graph-edge');
@@ -27,6 +32,9 @@ const elements = {
   introEyebrow: document.getElementById('introEyebrow'),
   introTitle: document.getElementById('introTitle'),
   introLede: document.getElementById('introLede'),
+  routeStart: document.getElementById('routeStart'),
+  routeStartLabel: document.getElementById('routeStartLabel'),
+  routeStartMeta: document.getElementById('routeStartMeta'),
   categoryList: document.getElementById('categoryList'),
   tooltip: document.getElementById('nodeTooltip'),
   tooltipType: document.getElementById('tooltipType'),
@@ -39,7 +47,14 @@ const elements = {
   detailClaim: document.getElementById('detailClaim'),
   detailBody: document.getElementById('detailBody'),
   sourceWrap: document.getElementById('sourceWrap'),
-  related: document.getElementById('related')
+  related: document.getElementById('related'),
+  routeNavigator: document.getElementById('routeNavigator'),
+  routeProgress: document.getElementById('routeProgress'),
+  routePrevious: document.getElementById('routePrevious'),
+  routeNext: document.getElementById('routeNext'),
+  routeMovement: document.getElementById('routeMovement'),
+  routeMovementNumber: document.getElementById('routeMovementNumber'),
+  routeMovementTitle: document.getElementById('routeMovementTitle')
 };
 
 function setText(element, value) { element.textContent = value; }
@@ -56,6 +71,13 @@ function renderIntroTitle(lines) {
 setText(elements.introEyebrow, graph.view.eyebrow);
 renderIntroTitle(graph.view.titleLines);
 setText(elements.introLede, graph.view.lede);
+const featuredRoute = graph.routeById.get(graph.view.featuredRouteId);
+if (featuredRoute) {
+  setText(elements.routeStartLabel, featuredRoute.name);
+  setText(elements.routeStartMeta, `${featuredRoute.conceptIds.length} connected ideas`);
+} else {
+  elements.routeStart.hidden = true;
+}
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -119,6 +141,7 @@ let selectedId = null;
 let hoveredId = null;
 let dragStart = null;
 let didDrag = false;
+let activeRoute = null;
 const enabledCategoryIds = new Set(categories.map(category => category.id));
 
 function stopAutoRotate() {
@@ -235,12 +258,64 @@ function renderCategories() {
 }
 
 function toggleCategory(categoryId) {
+  if (activeRoute) endRoute();
   if (enabledCategoryIds.has(categoryId)) enabledCategoryIds.delete(categoryId);
   else enabledCategoryIds.add(categoryId);
   if (selectedId && !enabledCategoryIds.has(graph.conceptById.get(selectedId).categoryId)) clearSelection();
   hideTooltip();
   updateVisibility();
   renderCategories();
+}
+
+function renderRouteNavigator() {
+  const route = activeRoute && graph.routeById.get(activeRoute.id);
+  const isActive = Boolean(route);
+  elements.routeNavigator.hidden = !isActive;
+  elements.routeStart.setAttribute('aria-expanded', String(isActive));
+  elements.routeStart.dataset.state = isActive ? 'active' : 'idle';
+  elements.routeMovement.hidden = !route;
+  if (!route) return;
+
+  const step = activeRoute.index + 1;
+  const conceptId = route.conceptIds[activeRoute.index];
+  const movementIndex = route.movements.findIndex(movement => movement.conceptIds.includes(conceptId));
+  const movement = route.movements[movementIndex];
+  setText(elements.routeProgress, `${String(step).padStart(2, '0')} / ${String(route.conceptIds.length).padStart(2, '0')}`);
+  setText(elements.routeMovementNumber, `Movement ${movementIndex + 1} / ${route.movements.length}`);
+  setText(elements.routeMovementTitle, movement.name);
+  elements.routeProgress.setAttribute('aria-label', `${route.name}, movement ${movementIndex + 1}, idea ${step} of ${route.conceptIds.length}`);
+  elements.routePrevious.disabled = activeRoute.index === 0;
+  elements.routeNext.disabled = step === route.conceptIds.length;
+}
+
+function startRoute(routeId) {
+  const route = graph.routeById.get(routeId);
+  if (!route) return;
+  route.conceptIds.forEach(id => enabledCategoryIds.add(graph.conceptById.get(id).categoryId));
+  updateVisibility();
+  renderCategories();
+  activeRoute = { id: routeId, index: 0 };
+  renderRouteNavigator();
+  selectConcept(route.conceptIds[0], { fromRoute: true });
+}
+
+function moveRoute(direction) {
+  if (!activeRoute) return;
+  const route = graph.routeById.get(activeRoute.id);
+  const nextIndex = activeRoute.index + direction;
+  if (nextIndex < 0) return;
+  if (nextIndex >= route.conceptIds.length) {
+    endRoute();
+    return;
+  }
+  activeRoute.index = nextIndex;
+  renderRouteNavigator();
+  selectConcept(route.conceptIds[nextIndex], { fromRoute: true });
+}
+
+function endRoute() {
+  activeRoute = null;
+  renderRouteNavigator();
 }
 
 function updateVisibility() {
@@ -343,7 +418,8 @@ function appendSource(source) {
   elements.sourceWrap.append(link);
 }
 
-function selectConcept(id) {
+function selectConcept(id, { fromRoute = false } = {}) {
+  if (activeRoute && !fromRoute) endRoute();
   const isOpeningDetail = selectedId === null;
   selectedId = id;
   const concept = graph.conceptById.get(id);
@@ -370,7 +446,7 @@ function selectConcept(id) {
     const relationText = direction === 'outgoing' ? relation.type.replaceAll('-', ' ') : `is ${relation.type.replaceAll('-', ' ')} by`;
     button.className = 'related-button';
     button.type = 'button';
-    button.append(Object.assign(document.createElement('span'), { textContent: `${relationText} →` }), document.createTextNode(neighbor.name));
+    button.append(Object.assign(document.createElement('span'), { textContent: relationText }), document.createTextNode(neighbor.name));
     button.addEventListener('click', () => selectConcept(neighborId));
     elements.related.append(button);
   });
@@ -421,6 +497,25 @@ renderer.domElement.addEventListener('click', event => {
   const hit = findHit(event);
   if (hit) selectConcept(hit.userData.id);
   else hideTooltip();
+});
+
+elements.routeStart.addEventListener('click', () => startRoute(graph.view.featuredRouteId));
+elements.routePrevious.addEventListener('click', () => moveRoute(-1));
+elements.routeNext.addEventListener('click', () => moveRoute(1));
+document.addEventListener('keydown', event => {
+  if (!activeRoute || event.altKey || event.ctrlKey || event.metaKey) return;
+  if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLSelectElement) return;
+  if (event.key === 'ArrowRight') {
+    event.preventDefault();
+    moveRoute(1);
+  } else if (event.key === 'ArrowLeft') {
+    event.preventDefault();
+    moveRoute(-1);
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    endRoute();
+    clearSelection();
+  }
 });
 
 controls.addEventListener('start', () => {
@@ -480,4 +575,7 @@ function animate(time = 0) {
 }
 requestAnimationFrame(animate);
 
-document.getElementById('closeButton').addEventListener('click', clearSelection);
+document.getElementById('closeButton').addEventListener('click', () => {
+  endRoute();
+  clearSelection();
+});
