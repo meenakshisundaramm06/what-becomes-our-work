@@ -1,39 +1,58 @@
-# Field Notes
+# What becomes our work?
 
-A source-backed, reusable knowledge graph. The first view is **The Answerable Designer**, prepared for the UX chapter; it is a view into the graph, not a separate presentation format.
+An interactive 3D knowledge graph about one question: *when AI expands what we can do, what becomes our work?*
+
+**[Open the live graph →](https://meenakshisundaramm06.github.io/what-becomes-our-work/)**
+
+The graph argues one idea: our value is not only making more, but being able to understand, judge and stand behind what ships. It holds 18 concepts, linked by 36 typed relations, and every claim points back to a source.
+
+This is a portfolio and reference project. I share it to show how I think about structuring an argument as data, not as a reusable tool.
+
+## Try it
+
+- **Drag** to turn the graph and see its depth.
+- **Scroll** to zoom.
+- **Select a concept** to read its claim, its summary and its sources.
+- **Click a category** in the legend to show or hide it.
+- **Follow the guided route.** It walks through the argument in four movements: our scope expands, output can grow faster than understanding, generation creates a verification problem, and human value shifts toward answerability.
+
+## What I wanted to show
+
+**The argument lives in data, not in the picture.** A concept, a source or a link is a record. The 3D scene only draws records. It computes each node's position from the active view and never stores coordinates in the knowledge itself. The guided route is data too: an ordered list of concepts, grouped into movements.
+
+**Every link says why.** A relation has two concept IDs, a type, a plain-language reason and at least one source. An unlabelled line between two ideas does not pass validation.
+
+**The source list is checked, not trusted.** The 12 sources include research reports, a journal paper, videos and posts. A script checks that every concept cites a source that exists and every relation joins two concepts that exist. It runs before every deploy.
+
+## How it is built
+
+| Part | File |
+| --- | --- |
+| Sources | `src/data/sources.js` |
+| Concepts (claim, summary, tags, sources) | `src/data/concepts.js` |
+| Typed relations (reason, evidence) | `src/data/relations.js` |
+| Categories | `src/data/categories.js` |
+| Views (a chosen set of concepts) | `src/data/views.js` |
+| Guided routes (an ordered path through a view) | `src/data/routes.js` |
+| Graph model (data to nodes and edges) | `src/graph-model.js` |
+| Scene and interaction | `src/main.js` |
+| Rules for valid data | `scripts/validate-graph.mjs` |
+
+Stack: [Three.js](https://threejs.org) for the scene, [Vite](https://vite.dev) for the build, plain JavaScript, no framework. Each push to `main` validates the data, builds the site and publishes it to GitHub Pages.
 
 ## Run it
 
+You need Node.js.
+
 ```bash
 npm install
-npm run dev
+npm run dev        # start a local server
+npm run validate   # check the graph data
+npm run build      # build to dist/
 ```
 
-Before committing content changes, run:
+To add an idea: add its source once, add the concept, then link it with a typed relation that gives a reason. Add it to a view only if it belongs on that map. `npm run validate` tells you what is missing.
 
-```bash
-npm run validate
-npm run build
-```
+## Note
 
-## Content model
-
-The knowledge base is separate from the renderer:
-
-- `src/data/sources.js` — canonical source records.
-- `src/data/concepts.js` — named concepts, claims, summaries, tags, and source references.
-- `src/data/relations.js` — directed, typed relationships with a reason and supporting evidence.
-- `src/data/views.js` — curated subsets of concepts for a talk, topic, or reading path.
-- `src/data/routes.js` — ordered, reusable guided paths through a view.
-
-Every relation must have two existing concept IDs, a relation type, a human-readable reason, and at least one source ID. Every concept must cite an existing source. `scripts/validate-graph.mjs` enforces those referential-integrity rules.
-
-## Adding knowledge
-
-1. Add the original material once in `sources.js`.
-2. Add one concept per distinct, discussable idea in `concepts.js`.
-3. Add a typed relation in `relations.js`; avoid unlabelled connections.
-4. Include the concept in a view only when it belongs in that map.
-5. Add an ordered route in `routes.js` when an audience needs a guided path; set the view’s `featuredRouteId` only when it should be the visible entry point.
-
-The Three.js scene in `src/main.js` derives node positions from the active view. It deliberately does not store visual coordinates in the knowledge records.
+Shared for reference. No license is attached.
